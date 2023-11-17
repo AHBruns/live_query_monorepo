@@ -1,0 +1,21 @@
+name: LiveQuery Checks
+on: [workflow_call]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: team-alembic/staple-actions/actions/install-elixir@main
+      - uses: ./.github/actions/deps.yaml
+        with:
+          working-directory: ./core
+      - uses: ./.github/actions/compile.yaml
+        with:
+          working-directory: ./core
+      - uses: ./.github/actions/deps.yaml
+        with:
+          working-directory: ./live_query
+      - uses: ./.github/actions/compile.yaml
+        with:
+          working-directory: ./live_query
+          mix-env: test

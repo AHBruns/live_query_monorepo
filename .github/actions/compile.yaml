@@ -1,0 +1,29 @@
+name: Compile
+description: Compile a mix project
+inputs:
+  working-directory:
+    description: "The path to the mix project's directory"
+    required: true
+  mix-env:
+    description: "The environment to run mix in"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/cache/restore@v3
+      id: restore-cache
+      working-directory: ${{ inputs.working-directory }}
+      with:
+        path: _build
+        key: compile-${{ runner.os }}-${{ hashFiles('lib/**/*.ex', 'mix.exs', 'mix.lock') }}
+    - run: mix compile --warnings-as-errors
+      if: steps.restore-cache.outputs.cache-hit != 'true'
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        MIX_ENV: ${{ inputs.mix-env }}
+    - uses: actions/cache/save@v3
+      if: steps.restore-cache.outputs.cache-hit != 'true'
+      working-directory: ${{ inputs.working-directory }}
+      with:
+        path: _build
+        key: ${{ steps.restore-cache.outputs.cache-primary-key }}

@@ -1,0 +1,24 @@
+name: Deps
+description: Install deps for a mix project
+inputs:
+  working-directory:
+    description: "The path to the mix project's directory"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/cache/restore@v3
+      id: restore-cache
+      working-directory: ${{ inputs.working-directory }}
+      with:
+        path: deps
+        key: deps-${{ runner.os }}-${{ hashFiles('mix.lock') }}
+    - run: mix deps.get
+      if: steps.restore-cache.outputs.cache-hit != 'true'
+      working-directory: ${{ inputs.working-directory }}
+    - uses: actions/cache/save@v3
+      if: steps.restore-cache.outputs.cache-hit != 'true'
+      working-directory: ${{ inputs.working-directory }}
+      with:
+        path: deps
+        key: ${{ steps.restore-cache.outputs.cache-primary-key }}

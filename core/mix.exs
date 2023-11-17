@@ -1,10 +1,12 @@
-defmodule LiveQueryCore.MixProject do
+defmodule Core.MixProject do
   use Mix.Project
 
+  @version "0.0.0-alpha.0"
   def project do
     [
+      name: "LiveQuery.Core",
       app: :live_query_core,
-      version: "0.0.0-alpha.0",
+      version: @version,
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       deps: deps()
@@ -16,6 +18,8 @@ defmodule LiveQueryCore.MixProject do
   end
 
   defp deps do
-    []
+    [
+      {:jason, "~> 1.4"}
+    ]
   end
 end

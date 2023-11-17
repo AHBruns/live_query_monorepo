@@ -4,7 +4,8 @@ jobs:
   core_checks:
     runs-on: ubuntu-latest
     steps:
-      - uses: "./.github/actions/core_checks"
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/core_checks
   live_query-checks:
     uses: ./.github/workflows/live_query-checks.yaml
   core-prepare-to-publish:

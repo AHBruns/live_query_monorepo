@@ -5,4 +5,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ./.github/actions/core-checks
+      - uses: team-alembic/staple-actions/actions/install-elixir@main
+      - uses: ./.github/actions/deps
+        with:
+          working-directory: ./core
+      - uses: ./.github/actions/compile
+        with:
+          working-directory: ./core
+          mix-env: test
+      - uses: ./.github/actions/test
+        with:
+          working-directory: ./core

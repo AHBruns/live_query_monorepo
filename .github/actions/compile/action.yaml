@@ -17,6 +17,7 @@ runs:
         key: ${{ inputs.working-directory }}-compile-${{ runner.os }}-${{ hashFiles(format('{0}/{1}', inputs.working-directory, 'lib/**/*.ex'), format('{0}/{1}', inputs.working-directory, 'mix.exs'), format('{0}/{1}', inputs.working-directory, 'mix.lock')) }}
         restore-keys: ${{ inputs.working-directory }}-compile-${{ runner.os }}-
     - run: mix compile --warnings-as-errors
+      shell: bash
       if: steps.restore-cache.outputs.cache-hit != 'true'
       working-directory: ${{ inputs.working-directory }}
       env:

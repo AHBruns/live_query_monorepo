@@ -9,3 +9,17 @@ jobs:
     uses: ./.github/workflows/core-prepare-to-publish.yaml
   live_query-prepare-to-publish:
     uses: ./.github/workflows/live_query-prepare-to-publish.yaml
+  core-publish:
+    needs: core-prepare-to-publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: echo "now publish..."
+        shell: bash
+  live_query-publish:
+    needs: live_query-prepare-to-publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: echo "now publish..."
+        shell: bash

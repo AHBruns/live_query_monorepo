@@ -1,7 +1,7 @@
 name: LiveQuery Checks
 on: [workflow_call]
 jobs:
-  check:
+  live_query-checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

@@ -1,7 +1,7 @@
 name: LiveQuery.Core Prepare to Publish
 on: [workflow_call]
 jobs:
-  check:
+  core-prepare-to-publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

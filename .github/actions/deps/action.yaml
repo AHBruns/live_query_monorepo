@@ -20,5 +20,5 @@ runs:
     - uses: actions/cache/save@v3
       if: steps.restore-cache.outputs.cache-hit != 'true'
       with:
-        path: deps
+        path: ${{ format('{0}/{1}', inputs.working-directory, 'deps') }}
         key: ${{ steps.restore-cache.outputs.cache-primary-key }}

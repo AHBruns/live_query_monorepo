@@ -2,7 +2,9 @@ name: CI
 on: [push]
 jobs:
   core-checks:
-    uses: ./.github/workflows/core-checks.yaml
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/core-checks
   live_query-checks:
     uses: ./.github/workflows/live_query-checks.yaml
   core-prepare-to-publish:

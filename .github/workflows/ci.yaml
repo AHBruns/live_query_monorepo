@@ -1,11 +1,8 @@
 name: CI
 on: [push]
 jobs:
-  core_checks:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/core_checks
+  core-checks:
+    uses: ./.github/workflows/core-checks.yaml
   live_query-checks:
     uses: ./.github/workflows/live_query-checks.yaml
   core-prepare-to-publish:

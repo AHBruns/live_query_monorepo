@@ -1,0 +1,8 @@
+name: LiveQuery.Core Checks
+on: [workflow_call]
+jobs:
+  core-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/core-checks

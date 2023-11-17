@@ -1,4 +1,4 @@
-name: LiveQuery Checks
+name: LiveQuery Prepare to Publish
 on: [workflow_call]
 jobs:
   check:
@@ -8,17 +8,8 @@ jobs:
       - uses: team-alembic/staple-actions/actions/install-elixir@main
       - uses: ./.github/actions/deps
         with:
-          working-directory: ./core
-      - uses: ./.github/actions/compile
-        with:
-          working-directory: ./core
-      - uses: ./.github/actions/deps
-        with:
           working-directory: ./live_query
       - uses: ./.github/actions/compile
         with:
           working-directory: ./live_query
-          mix-env: test
-      - uses: ./.github/actions/test
-        with:
-          working-directory: ./live_query
+          mix-env: prod

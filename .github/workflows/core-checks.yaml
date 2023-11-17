@@ -13,3 +13,6 @@ jobs:
         with:
           working-directory: ./core
           mix-env: test
+      - uses: ./.github/actions/test
+        with:
+          working-directory: ./core

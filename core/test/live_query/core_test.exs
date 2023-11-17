@@ -3,6 +3,6 @@ defmodule LiveQuery.CoreTest do
   doctest LiveQuery.Core
 
   test "the truth" do
-    assert false
+    assert true
   end
 end

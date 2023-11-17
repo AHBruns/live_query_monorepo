@@ -10,3 +10,6 @@ runs:
     - run: mix test --cover
       shell: bash
       working-directory: ${{ inputs.working-directory }}
+      env:
+        HEX_HOME: ${{ runner.temp }}/.hex
+        MIX_HOME: ${{ runner.temp }}/.mix

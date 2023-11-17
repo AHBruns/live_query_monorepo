@@ -6,16 +6,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: team-alembic/staple-actions/actions/install-elixir@main
-      - uses: ./.github/actions/deps.yaml
+      - uses: ./.github/actions/deps
         with:
           working-directory: ./core
-      - uses: ./.github/actions/compile.yaml
+      - uses: ./.github/actions/compile
         with:
           working-directory: ./core
-      - uses: ./.github/actions/deps.yaml
+      - uses: ./.github/actions/deps
         with:
           working-directory: ./live_query
-      - uses: ./.github/actions/compile.yaml
+      - uses: ./.github/actions/compile
         with:
           working-directory: ./live_query
           mix-env: test

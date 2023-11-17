@@ -2,8 +2,6 @@ name: CI
 on: [push]
 jobs:
   core-checks:
-    runs-on: ubuntu-latest
     uses: ./.github/workflows/core-checks.yaml
   live_query-checks:
-    runs-on: ubuntu-latest
     uses: ./.github/workflows/live_query-checks.yaml

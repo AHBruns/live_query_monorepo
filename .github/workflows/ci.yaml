@@ -4,19 +4,7 @@ jobs:
   core_checks:
     runs-on: ubuntu-latest
     steps:
-      # - uses: ./.github/actions/core_checks
-      - uses: actions/checkout@v3
-      - uses: team-alembic/staple-actions/actions/install-elixir@main
-      - uses: ./.github/actions/deps
-        with:
-          working-directory: ./core
-      - uses: ./.github/actions/compile
-        with:
-          working-directory: ./core
-          mix-env: test
-      - uses: ./.github/actions/test
-        with:
-          working-directory: ./core
+      - uses: "./.github/actions/core_checks"
   live_query-checks:
     uses: ./.github/workflows/live_query-checks.yaml
   core-prepare-to-publish:

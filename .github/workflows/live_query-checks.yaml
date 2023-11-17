@@ -6,7 +6,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: team-alembic/staple-actions/actions/install-elixir@main
-        working-directory: ./core
       - uses: ./.github/actions/deps.yaml
         with:
           working-directory: ./core

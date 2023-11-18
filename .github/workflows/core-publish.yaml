@@ -22,6 +22,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: HEX_API_KEY=${{ secrets.hex_api_key }} mix hex.publish --yes
+      - uses: team-alembic/staple-actions/actions/install-elixir@main
+      - run: mix hex.publish --yes
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
         shell: bash
         working-directory: ./core

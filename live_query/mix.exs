@@ -1,16 +1,16 @@
 defmodule LiveQuery.MixProject do
   use Mix.Project
 
-  @version "0.0.0-alpha.0"
-
   def project do
     [
-      name: "LiveQuery",
       app: :live_query,
-      version: @version,
+      version: version(),
       elixir: "~> 1.15",
-      start_permanent: Mix.env() == :prod,
-      deps: deps()
+      name: name(),
+      description: description(),
+      package: package(),
+      deps: deps(),
+      start_permanent: Mix.env() == :prod
     ]
   end
 
@@ -20,8 +20,33 @@ defmodule LiveQuery.MixProject do
 
   defp deps do
     [
-      # replace with actual deps
-      # {:live_query_core, path: "../core"}
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
+      {:live_query_core, "== 0.0.0-alpha.0"}
+    ]
+  end
+
+  defp version() do
+    "0.0.0-alpha.0"
+  end
+
+  defp name() do
+    "live_query"
+  end
+
+  defp description() do
+    "The whole LiveQuery suite in one package."
+  end
+
+  defp package() do
+    [
+      name: name(),
+      files: [
+        "mix.exs",
+        "README.md",
+        "LICENSE"
+      ],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/AHBruns/live_query_monorepo"}
     ]
   end
 end

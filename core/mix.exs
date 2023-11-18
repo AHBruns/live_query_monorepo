@@ -33,7 +33,7 @@ defmodule Core.MixProject do
   end
 
   defp name() do
-    "LiveQuery.Core"
+    "live_query_core"
   end
 
   defp description() do

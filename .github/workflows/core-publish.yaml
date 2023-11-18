@@ -16,9 +16,12 @@ jobs:
           working-directory: ./core
           mix-env: prod
   core-publish:
-    needs: core-prepare-to-publish
+    needs:
+      - checks
+      - core-prepare-to-publish
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: echo "now publish..."
+      - run: HEX_API_KEY=${{ secrets.hex_api_key }} mix hex.publish --yes
         shell: bash
+        working-directory: ./core

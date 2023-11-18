@@ -1,5 +1,5 @@
 name: Checks
-on: [push]
+on: [workflow_call]
 jobs:
   core-checks:
     uses: ./.github/workflows/check.yaml

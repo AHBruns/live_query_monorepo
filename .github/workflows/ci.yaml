@@ -1,0 +1,5 @@
+name: CI
+on: [push]
+jobs:
+  checks:
+    uses: ./.github/workflows/checks.yaml

@@ -1,0 +1,11 @@
+name: Checks
+on: [push]
+jobs:
+  core-checks:
+    uses: ./.github/workflows/check.yaml
+    with:
+      working-directory: ./core
+  live_query-checks:
+    uses: ./.github/workflows/check.yaml
+    with:
+      working-directory: ./live_query

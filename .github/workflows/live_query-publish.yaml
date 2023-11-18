@@ -1,6 +1,8 @@
-name: LiveQuery Prepare to Publish
-on: [workflow_call]
+name: LiveQuery.Core Publish
+on: [workflow_dispatch]
 jobs:
+  checks:
+    uses: ./.github/workflows/checks.yaml
   live_query-prepare-to-publish:
     runs-on: ubuntu-latest
     steps:
@@ -13,3 +15,10 @@ jobs:
         with:
           working-directory: ./live_query
           mix-env: prod
+  live_query-publish:
+    needs: live_query-prepare-to-publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: echo "now publish..."
+        shell: bash

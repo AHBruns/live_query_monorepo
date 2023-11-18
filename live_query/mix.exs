@@ -20,7 +20,8 @@ defmodule LiveQuery.MixProject do
 
   defp deps do
     [
-      {:live_query_core, path: "../core"}
+      # replace with actual deps
+      # {:live_query_core, path: "../core"}
     ]
   end
 end

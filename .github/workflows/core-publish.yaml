@@ -1,7 +1,9 @@
-name: LiveQuery.Core Checks
-on: [workflow_call]
+name: Core Publish
+on: [workflow_dispatch]
 jobs:
-  core-checks:
+  checks:
+    uses: ./.github/workflows/checks.yaml
+  core-prepare-to-publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -12,7 +14,11 @@ jobs:
       - uses: ./.github/actions/compile
         with:
           working-directory: ./core
-          mix-env: test
-      - uses: ./.github/actions/test
-        with:
-          working-directory: ./core
+          mix-env: prod
+  core-publish:
+    needs: core-prepare-to-publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: echo "now publish..."
+        shell: bash

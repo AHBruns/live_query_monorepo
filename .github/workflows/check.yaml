@@ -1,0 +1,23 @@
+name: Check a mix project
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        required: true
+        type: string
+jobs:
+  core-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: team-alembic/staple-actions/actions/install-elixir@main
+      - uses: ./.github/actions/deps
+        with:
+          working-directory: ${{ inputs.working-directory }}
+      - uses: ./.github/actions/compile
+        with:
+          working-directory: ${{ inputs.working-directory }}
+          mix-env: test
+      - uses: ./.github/actions/test
+        with:
+          working-directory: ${{ inputs.working-directory }}

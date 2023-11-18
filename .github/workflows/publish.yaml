@@ -1,0 +1,23 @@
+name: Publish
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        required: true
+        type: string
+    secrets:
+      HEX_API_KEY:
+        required: true
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: team-alembic/staple-actions/actions/install-elixir@main
+      - run: mix hex.publish --yes
+        shell: bash
+        working-directory: ${{ inputs.working-directory }}
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+          HEX_HOME: ${{ runner.temp }}/.hex
+          MIX_HOME: ${{ runner.temp }}/.mix

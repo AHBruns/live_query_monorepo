@@ -19,12 +19,8 @@ jobs:
     needs:
       - checks
       - live_query-prepare-to-publish
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: team-alembic/staple-actions/actions/install-elixir@main
-      - run: mix hex.publish --yes
-        env:
-          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
-        shell: bash
-        working-directory: ./colive_queryre
+    uses: ./.github/workflows/publish.yaml
+    with:
+      working-directory: ./live_query
+    secrets:
+      HEX_API_KEY: ${{ secrets.HEX_API_KEY }}

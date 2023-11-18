@@ -19,12 +19,8 @@ jobs:
     needs:
       - checks
       - core-prepare-to-publish
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: team-alembic/staple-actions/actions/install-elixir@main
-      - run: mix hex.publish --yes
-        env:
-          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
-        shell: bash
-        working-directory: ./core
+    uses: ./.github/workflows/publish.yaml
+    with:
+      working-directory: ./core
+    secrets:
+      HEX_API_KEY: ${{ secrets.HEX_API_KEY }}

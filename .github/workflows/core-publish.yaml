@@ -1,4 +1,4 @@
-name: Core Publish
+name: LiveQuery.Core Publish
 on: [workflow_dispatch]
 jobs:
   checks:

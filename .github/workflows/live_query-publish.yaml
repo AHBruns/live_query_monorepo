@@ -1,5 +1,11 @@
 name: LiveQuery Publish
-on: [workflow_dispatch]
+on:
+  workflow_dispatch
+  push:
+    branches:
+      - main
+    tags:
+      - publish-live_query
 jobs:
   checks:
     uses: ./.github/workflows/checks.yaml

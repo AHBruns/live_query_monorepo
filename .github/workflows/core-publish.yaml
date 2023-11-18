@@ -1,5 +1,11 @@
 name: LiveQuery.Core Publish
-on: [workflow_dispatch]
+on:
+  workflow_dispatch
+  push:
+    branches:
+      - main
+    tags:
+      - publish-core
 jobs:
   checks:
     uses: ./.github/workflows/checks.yaml

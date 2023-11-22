@@ -77,15 +77,24 @@ defmodule LiveQuery.CoreTest do
     assert :ok = Core.start_using(system, key)
     assert_receive {_, :set}
     Core.unsubscribe(system, key)
-    clear_mailbox()
+    clear_mailbox(10)
     refute_receive _
   end
 
-  defp clear_mailbox() do
+  test "reentrant query returns", %{system: system} do
+    key = %Queries.ReentrantQuery{num: 10}
+    Core.subscribe(system, key)
+    assert :ok = Core.start_using(system, key)
+    assert_receive {_, :set}
+    assert_receive {_, :set}
+    assert {:ok, 10} = Core.get_data(system, key)
+  end
+
+  defp clear_mailbox(timeout \\ 0) do
     receive do
       _ -> clear_mailbox()
     after
-      0 -> :ok
+      timeout -> :ok
     end
   end
 end

@@ -13,14 +13,14 @@ defmodule Queries.RandomNumberQuery do
   @impl true
   def init(opts) do
     Core.set_data(opts.data_ref, System.unique_integer())
-    send(self(), :tick)
+    :timer.send_after(10, :tick)
     {:ok, opts}
   end
 
   @impl true
   def handle_info(:tick, opts) do
     Core.set_data(opts.data_ref, System.unique_integer())
-    send(self(), :tick)
+    :timer.send_after(10, :tick)
     {:noreply, opts}
   end
 

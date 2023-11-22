@@ -30,10 +30,7 @@ defmodule LiveQuery.Core.Proxy do
        system: system,
        pids_and_monitors: BiMap.new(),
        keys_and_query_pids: BiMap.new(),
-       keys_and_consumer_pids: BiMultiMap.new(),
-       keys_and_start_tasks: BiMap.new(),
-       start_tasks_and_consumer_pids: BiMultiMap.new(),
-       start_tasks_and_froms: BiMultiMap.new()
+       keys_and_consumer_pids: BiMultiMap.new()
      }}
   end
 
@@ -48,114 +45,38 @@ defmodule LiveQuery.Core.Proxy do
   end
 
   @impl GenServer
-  def handle_call({consumer_pid, :start_using, key}, from, state) do
-    cond do
-      BiMap.has_key?(state.keys_and_query_pids, key) ->
-        state = attach(state, consumer_pid, key)
-        {:reply, :ok, state}
+  def handle_call({consumer_pid, :start_using, key}, _from, state) do
+    state =
+      if BiMap.has_key?(state.keys_and_query_pids, key) do
+        attach(state, consumer_pid, key)
+      else
+        {:ok, pid} = start_query(state, key)
 
-      BiMap.has_key?(state.keys_and_start_tasks, key) ->
-        state =
-          Map.update!(state, :start_tasks_and_consumer_pids, fn start_tasks_and_consumer_pids ->
-            BiMultiMap.put(
-              start_tasks_and_consumer_pids,
-              BiMap.fetch!(state.keys_and_start_tasks, key),
-              consumer_pid
-            )
-          end)
-          |> Map.update!(:start_tasks_and_froms, fn start_tasks_and_froms ->
-            BiMultiMap.put(
-              start_tasks_and_froms,
-              BiMap.fetch!(state.keys_and_start_tasks, key),
-              from
-            )
-          end)
+        state
+        |> Map.update!(:keys_and_query_pids, &BiMap.put(&1, key, pid))
+        |> attach(consumer_pid, key)
+        |> monitoring(pid)
+      end
 
-        {:noreply, state}
-
-      true ->
-        %Task{ref: task_ref, pid: pid} =
-          Task.async(fn -> start_query(state, key) end)
-
-        state =
-          state
-          |> Map.update!(:pids_and_monitors, &BiMap.put(&1, pid, task_ref))
-          |> Map.update!(:keys_and_start_tasks, &BiMap.put(&1, key, task_ref))
-          |> Map.update!(:start_tasks_and_consumer_pids, fn start_tasks_and_consumer_pids ->
-            BiMultiMap.put(start_tasks_and_consumer_pids, task_ref, consumer_pid)
-          end)
-          |> Map.update!(:start_tasks_and_froms, fn start_tasks_and_froms ->
-            BiMultiMap.put(start_tasks_and_froms, task_ref, from)
-          end)
-
-        {:noreply, state}
-    end
+    {:reply, :ok, state}
   end
 
   def handle_call({consumer_pid, :stop_using, key}, _from, state) do
-    if BiMap.has_value?(state.keys_and_start_tasks, key) and
-         BiMultiMap.member?(
-           state.start_tasks_and_consumer_pids,
-           BiMap.fetch!(state.keys_and_start_tasks, key),
-           consumer_pid
-         ) do
-      # If a consumer tries to stop using a key while they are in the process of starting
-      # to use said key, we ignore their :stop_using request / act as if it came in
-      # before their :start_using request.
-      {:reply, :ok, state}
-    else
-      state = detach(state, consumer_pid, key)
+    state = detach(state, consumer_pid, key)
 
-      remaining_count =
-        state.keys_and_consumer_pids
-        |> BiMultiMap.get(consumer_pid)
-        |> Enum.count()
+    key_count =
+      state.keys_and_consumer_pids
+      |> BiMultiMap.get(consumer_pid)
+      |> Enum.count()
 
-      {:reply, {:ok, remaining_count}, state}
-    end
+    {:reply, {:ok, key_count}, state}
   end
 
   @impl GenServer
-  def handle_info({:EXIT, _pid, reason}, state) do
-    {:stop, reason, state}
-  end
-
-  def handle_info({ref, {:ok, pid}}, state) do
-    Process.demonitor(ref, [:flush])
-
-    task_pid = BiMap.fetch_key!(state.pids_and_monitors, ref)
-    Process.unlink(task_pid)
-
-    receive do
-      {:EXIT, ^task_pid, _} -> true
-    after
-      0 -> true
-    end
-
-    key = BiMap.fetch_key!(state.keys_and_start_tasks, ref)
-    froms = BiMultiMap.get(state.start_tasks_and_froms, ref)
-    consumer_pids = BiMultiMap.get(state.start_tasks_and_consumer_pids, ref)
-
-    state =
-      state
-      |> Map.update!(:pids_and_monitors, &BiMap.delete_value(&1, ref))
-      |> Map.update!(:keys_and_query_pids, &BiMap.put(&1, key, pid))
-      |> Map.update!(:keys_and_start_tasks, &BiMap.delete_key(&1, key))
-      |> Map.update!(:start_tasks_and_consumer_pids, &BiMultiMap.delete_key(&1, ref))
-      |> Map.update!(:start_tasks_and_froms, &BiMultiMap.delete_key(&1, ref))
-      |> monitoring(pid)
-      |> then(fn state -> Enum.reduce(consumer_pids, state, &attach(&2, &1, key)) end)
-
-    Enum.each(froms, &GenServer.reply(&1, :ok))
-
-    {:noreply, state}
-  end
-
   def handle_info({:DOWN, _ref, :process, pid, _reason}, state) do
     state =
       if BiMultiMap.has_value?(state.keys_and_consumer_pids, pid) do
         # consumer stopped
-
         state.keys_and_consumer_pids
         |> BiMultiMap.get_keys(pid)
         |> Enum.reduce(state, &detach(&2, pid, &1))
@@ -166,16 +87,16 @@ defmodule LiveQuery.Core.Proxy do
     state =
       if BiMap.has_value?(state.keys_and_query_pids, pid) do
         # query stopped
-
         key = BiMap.fetch_key!(state.keys_and_query_pids, pid)
         Store.unset(state.system, key)
 
-        # If a query stops while it still has consumers, that's a bug on the implementer's part.
-        # We handle it by sending an exit signal to all of its consumers.
-
         state.keys_and_consumer_pids
         |> BiMultiMap.get(key)
-        |> Enum.each(fn consumer_pid -> Process.exit(consumer_pid, {:query_down, key}) end)
+        |> Enum.each(fn consumer_pid ->
+          # If a query stops while it still has consumers, that's a bug on the implementer's part.
+          # We handle it by sending a non-normal exit signal to all of its consumers.
+          Process.exit(consumer_pid, {:query_down, key})
+        end)
 
         state
         |> Map.update!(:keys_and_consumer_pids, &BiMultiMap.delete_key(&1, key))
@@ -184,7 +105,9 @@ defmodule LiveQuery.Core.Proxy do
         state
       end
 
-    {:noreply, monitoring(state, pid)}
+    state = monitoring(state, pid)
+
+    {:noreply, state}
   end
 
   defp attach(state, consumer_pid, key) do

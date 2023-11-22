@@ -19,17 +19,21 @@ defmodule Core.MixProject do
   defp elixirc_paths(_), do: ["lib"]
 
   def application do
-    [extra_applications: [:logger]]
+    [
+      extra_applications: [:logger],
+      mod: {LiveQuery.Core.Application, []}
+    ]
   end
 
   defp deps do
     [
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
+      {:bimap, "~> 1.3"}
     ]
   end
 
   defp version() do
-    "0.0.0-alpha.0"
+    "0.0.0-alpha.1"
   end
 
   defp name() do
